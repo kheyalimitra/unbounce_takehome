@@ -1,0 +1,11 @@
+{
+  "name": "clojure-repo-details",
+  "version": "1.0.0",
+  "description": "This package analyze most popular Clojure projects in github ",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "UNDEFINED"
+}
