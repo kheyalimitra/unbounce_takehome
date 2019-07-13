@@ -16,7 +16,7 @@ async function getRepositories(repoCount, language="clojure") {
                 }
             }
         );
-        return result;
+        return await result;
     } catch (error) {
         console.log(error);
         throw new Error(error);
@@ -58,17 +58,17 @@ async function getCommitDetailsPerRepo(repoName, commitsPerRepoCount) {
 }
 
 async function getRepoDetails(repoCount, commitsPerRepoCount) {
-    let resultSet = {};
+    let resultSet = [];
     try {
-        const repos = await getRepositories(repoCount);
+        const repos = (await getRepositories(repoCount)).data;
         var commitPromises = [];
         var contributorPromises = [];
         for(let count = 0; count < repoCount; count ++) {
             let result = {};
-            result["repository_name"] = repos[count].items.full_name;
-            result["stargazers_count"] = repos[count].items.stargazers_count;
-            commitPromises.push(getCommitDetailsPerRepo(repos[count].items.full_name, commitsPerRepoCount));
-            contributorPromises.push(getContributorsPerRepo(repos[count].items.full_name));
+            result["repository_name"] = repos.items[count].full_name;
+            result["stargazers_count"] = repos.items[count].stargazers_count;
+            commitPromises.push(getCommitDetailsPerRepo(repos.items[count].full_name, commitsPerRepoCount));
+            contributorPromises.push(getContributorsPerRepo(repos.items[count].full_name));
             result["authors"] = {};
             resultSet.push(result);
     }
