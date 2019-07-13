@@ -7,5 +7,11 @@
     "test": "jest"
   },
   "author": "",
-  "license": "UNDEFINED"
+  "license": "UNDEFINED",
+  "devDependencies": {
+    "jest": "^24.8.0"
+  },
+  "dependencies": {
+    "custom-env": "^1.0.2"
+  }
 }
