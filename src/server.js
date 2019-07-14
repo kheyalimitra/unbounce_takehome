@@ -1,6 +1,6 @@
 const http = require('http');
 const url = require('url');
-const getRepoDetails =  require("./query");
+const {getRepoDetails} = require(".");
 const server = http.createServer();
 
 server.on('request', async (req, res) => {
@@ -15,8 +15,7 @@ server.on('request', async (req, res) => {
         const result = await getRepoDetails(repoCount, commitCount);
         res.writeHead(200, {"Content-Type": "application/json"});
         console.log(result);
-        // res.end(JSON.stringify(result));
-        res.end();
+        res.end(JSON.stringify(result));
     } catch(error) {
         console.log(error);
         res.writeHead(500, {"Content-Type": "application/json"});

@@ -25,7 +25,7 @@ async function getRepositories(repoCount, language="clojure") {
 }
 async function getContributorsPerRepo(repoName) {
     try {
-        const result = axios.get(
+        const result = await axios.get(
             urlList.repoDetailsUrl + repoName + "/contributors",
             { 
                 headers: {
@@ -42,7 +42,7 @@ async function getContributorsPerRepo(repoName) {
 
 async function getCommitDetailsPerRepo(repoName, commitsPerRepoCount) {
     try {
-        const result = axios.get(
+        const result = await axios.get(
             urlList.repoDetailsUrl + repoName + "/commits?per_page=" + commitsPerRepoCount,
             { 
                 headers: {
@@ -57,23 +57,55 @@ async function getCommitDetailsPerRepo(repoName, commitsPerRepoCount) {
     }
 }
 
+function generateContributionMapPerRepo(contributionResponse) {
+    let contributionMap = new Map();
+    for(let count = 0; count < contributionResponse.data.length; count ++) {
+        contributionMap[contributionResponse.data[count].login] = parseInt(contributionResponse.data[count].contributions);
+    }
+    return contributionMap;
+}
+
+function getAuthorDetails(commitResponse, contributionResponse) {
+    const contributionMap = generateContributionMapPerRepo(contributionResponse);
+    let authors = new Map();
+    for(let count = 0; count < commitResponse.data.length; count ++) {
+        let authorLogin = commitResponse.data[count].author.login;
+        let email = commitResponse.data[count].commit.author.email ;
+        let contribution = contributionMap[authorLogin];
+        const numContribution = contribution ? parseInt(contribution) : -1 ;
+        if (!authors.has(numContribution) ) {
+            authors[numContribution] = [];
+        }
+        authors[numContribution].push(email);
+    }
+    return authors;
+}
+
+function iterateAuthorsList (authors) {
+    let authorDetails = [];
+    Object.keys(authors).sort().reverse().forEach(function(key) {
+        for (index in authors[key].sort()) {
+            const author = {"email": authors[key][index], "number_of_commits": key};
+            authorDetails.push(author);
+        }
+    })
+    return authorDetails;
+}
+
 async function getRepoDetails(repoCount, commitsPerRepoCount) {
     let resultSet = [];
     try {
         const repos = (await getRepositories(repoCount)).data;
-        var commitPromises = [];
-        var contributorPromises = [];
         for(let count = 0; count < repoCount; count ++) {
             let result = {};
             result["repository_name"] = repos.items[count].full_name;
             result["stargazers_count"] = repos.items[count].stargazers_count;
-            commitPromises.push(getCommitDetailsPerRepo(repos.items[count].full_name, commitsPerRepoCount));
-            contributorPromises.push(getContributorsPerRepo(repos.items[count].full_name));
-            result["authors"] = {};
+            let commitResponse = await getCommitDetailsPerRepo(repos.items[count].full_name, commitsPerRepoCount);
+            let contributionResponse = await getContributorsPerRepo(repos.items[count].full_name);
+            result["authors"]  = iterateAuthorsList(getAuthorDetails(commitResponse, contributionResponse));
             resultSet.push(result);
-    }
-        const commitResponse = await Promise.all(commitPromises);
-        const contributionResponse = await Promise.all(contributorPromises);
+
+        }        
         return resultSet;
     } catch (error) {
         console.log("error occured", error);
