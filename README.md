@@ -24,6 +24,7 @@ npm --version
 yarn --version
 1.16.0
 ```
+** Other Dependencies: ** 
 axios - Promise based HTTP client for the browser and node.js. I have used it for calling API endpoints
 jest - JavaScript Testing Framework for runing functional testings
 http by nodejs - The server for handling and routing HTTP requests
@@ -41,6 +42,8 @@ $ npm install
 From the project folder pelase run
 ```
 yarn start
+or 
+node src/server.js
 ```
 Now from any browser, go to `http://localhost:8080/`
 Pass repo_count and commit_count as query stirng. E.g.  `?repo_count=2&commit_count=5` hit enter. 
@@ -87,7 +90,7 @@ Sample output could be
 ## Run test
 From the project folder pelase run
 ```
-yarn test
+yarn test 
 ```
 
 
