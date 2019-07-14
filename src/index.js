@@ -67,28 +67,35 @@ function generateContributionMapPerRepo(contributionResponse) {
 
 function getAuthorDetails(commitResponse, contributionResponse) {
     const contributionMap = generateContributionMapPerRepo(contributionResponse);
-    let authors = new Map();
+    let authors = {};
+    let uniqueAuthor = new Set();
     for(let count = 0; count < commitResponse.data.length; count ++) {
         let authorLogin = commitResponse.data[count].author.login;
-        let email = commitResponse.data[count].commit.author.email ;
-        let contribution = contributionMap[authorLogin];
-        const numContribution = contribution ? parseInt(contribution) : -1 ;
-        if (!authors.has(numContribution) ) {
-            authors[numContribution] = [];
+        if (!(uniqueAuthor.has(authorLogin))) {
+            uniqueAuthor.add(authorLogin);
+            let email = commitResponse.data[count].commit.author.email ;
+            let contribution = contributionMap[authorLogin];
+            const numContribution = contribution ? contribution : 1 ;
+            if (!(numContribution in authors)) {
+                authors[numContribution] = [];
+            }
+            authors[numContribution].push(email);
         }
-        authors[numContribution].push(email);
     }
     return authors;
 }
 
 function iterateAuthorsList (authors) {
     let authorDetails = [];
-    Object.keys(authors).sort().reverse().forEach(function(key) {
-        for (index in authors[key].sort()) {
-            const author = {"email": authors[key][index], "number_of_commits": key};
+    let authorList = Object.entries(authors);
+    // sort based on contribution count and break tie with email id 
+    authorList.sort((a,b) => (Number(a[0]) > Number(b[0]) ? -1 : a[1] < b[1] ? 1 : -1));
+    for(count in authorList)  {
+        for (index in authorList[count][1]) {
+            const author = {"email": authorList[count][1][index], "number_of_commits": authorList[count][0]};
             authorDetails.push(author);
         }
-    })
+    };
     return authorDetails;
 }
 

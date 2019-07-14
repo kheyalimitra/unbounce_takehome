@@ -14,11 +14,10 @@ server.on('request', async (req, res) => {
             1
         const result = await getRepoDetails(repoCount, commitCount);
         res.writeHead(200, {"Content-Type": "application/json"});
-        console.log(result);
         res.end(JSON.stringify(result));
     } catch(error) {
         console.log(error);
         res.writeHead(500, {"Content-Type": "application/json"});
-        res.end(JSON.stringify({"error":error}));
+        res.end(JSON.stringify({"error": "some eror has occured while processing your request. Please tray again"}));
     }
   }).listen(8080); 

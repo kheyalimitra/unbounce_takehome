@@ -25,7 +25,7 @@ it('get contributor details per clojure project', async() => {
 })
 
 it('get repo details per project in JSON format', async() => {
-    const response = await getRepoDetails(3,2);
+    const response = await getRepoDetails(3,3);
     const result =  response;
     expect(result).toBeDefined();
     expect(result[0].stargazers_count).toBeDefined();
